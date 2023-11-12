@@ -2,6 +2,7 @@ fn main() {
     println!("Hello, world!");
     f411_stack_heap();
     f412_owner_system();
+    f413_owner_function();
 }
 
 fn f411_stack_heap() {
@@ -141,5 +142,33 @@ fn f412_owner_system()
     - 所有浮点数类型，如f64
     - 字符类型，如char
     - 元组，当且仅当其包含的类型也都是Copy的时候，如(i32, i32)是Copy的，但是(i32, String)不是
+    */
+}
+
+fn f413_owner_function() {
+    println!("f413_owner_function");
+    /*
+    所有权与函数
+    在语义上，将值传递给函数和将值赋值给变量是类似的
+    将值传递给函数时，会发生移动或者复制
+    返回值同样也会发生移动或者复制
+    */
+    let s = String::from("hello");
+    takes_ownership(s);
+    fn takes_ownership(some_string: String) {
+        println!("{}", some_string);
+    }
+    // println!("{}", s); //error, value borrowed here after move
+
+    let x = 5;
+    makes_copy(x);
+    fn makes_copy(some_integer: i32) {
+        println!("{}", some_integer);
+    }
+    println!("{}", x); //x仍然可用
+
+    /*
+    如果让函数获得某个对象，但不获得它的所有权？
+    Reference
     */
 }
