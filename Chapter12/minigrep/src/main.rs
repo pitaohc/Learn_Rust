@@ -1,4 +1,4 @@
-use std::env;
+use std::{env, process};
 use std::fs;
 /*
 二进制程序关注点分离的指导性原则
@@ -22,7 +22,16 @@ fn main() {
     args 无法处理非法的Unicode字符
     如果需要处理非法的Unicode字符，可以使用std::env::args_os // OsString
     */
-    let config = Config::new(&args);
+
+    /*
+    unwrap_or_else()是Result类型的一个方法
+    如果Result是Ok，unwrap_or_else()会获取Ok中的值并返回
+    如果Result是Err，unwrap_or_else()会调用闭包并将Err中的值作为参数传递给闭包
+    */
+    let config = Config::new(&args).unwrap_or_else(|err|{
+        println!("Problem parsing arguments: {}",err);
+        process::exit(1); // 退出程序并返回状态码1
+    });
 
     let contents = fs::read_to_string(config.filename)
         .expect("Something went wrong reading the file\n");
@@ -35,14 +44,21 @@ fn main() {
 }
 
 impl Config {
-    fn new(args: &[String]) -> Config {
+    /*
+    使用Result来处理错误
+    &‘static str是字符串字面值的类型，它的生命周期是静态的
+    */
+    fn new(args: &[String]) -> Result<Config,&'static str> {
+        if(args.len()<3){
+            return Err("not enough arguments");
+        }
         let query = &args[1];
         let filename = &args[2];
         /*
         不能夺取query和filename的所有权，因为parse_config()需要返回Config实例
         to_string()会从&str创建一个String
         */
-        Config { query: query.to_string(), filename: filename.to_string() }
+        Ok(Config { query: query.to_string(), filename: filename.to_string() })
     }
 }
 
