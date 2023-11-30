@@ -1,0 +1,37 @@
+use std::error::Error;
+use std::fs;
+pub fn run(config: Config) -> Result<(), Box<dyn Error>> {
+    /*
+    Box<dyn Error>是一个trait对象，它可以表示任何实现Error trait的类型
+    */
+    let contents = fs::read_to_string(config.filename)?;
+    /*
+    ?运算符会将Result中的值取出并返回，如果Result是Err，?运算符会提前返回整个函数
+    */
+    println!("With text:\n{}", contents);
+    Ok(())
+}
+
+impl Config {
+    /*
+    使用Result来处理错误
+    &‘static str是字符串字面值的类型，它的生命周期是静态的
+    */
+    pub fn new(args: &[String]) -> Result<Config, &'static str> {
+        if args.len() < 3 {
+            return Err("not enough arguments");
+        }
+        let query = &args[1];
+        let filename = &args[2];
+        /*
+        不能夺取query和filename的所有权，因为parse_config()需要返回Config实例
+        to_string()会从&str创建一个String
+        */
+        Ok(Config { query: query.to_string(), filename: filename.to_string() })
+    }
+}
+
+pub struct Config {
+    pub query: String,
+    pub filename: String,
+}

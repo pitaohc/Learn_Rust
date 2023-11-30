@@ -1,5 +1,5 @@
 use std::{env, process};
-use std::fs;
+use minigrep::Config;
 /*
 二进制程序关注点分离的指导性原则
 将程序拆分为main.rs和lib.rs并将程序的逻辑放入lib.rs中
@@ -28,41 +28,20 @@ fn main() {
     如果Result是Ok，unwrap_or_else()会获取Ok中的值并返回
     如果Result是Err，unwrap_or_else()会调用闭包并将Err中的值作为参数传递给闭包
     */
-    let config = Config::new(&args).unwrap_or_else(|err|{
-        println!("Problem parsing arguments: {}",err);
+    let config = Config::new(&args).unwrap_or_else(|err| {
+        println!("Problem parsing arguments: {}", err);
         process::exit(1); // 退出程序并返回状态码1
     });
 
-    let contents = fs::read_to_string(config.filename)
-        .expect("Something went wrong reading the file\n");
-    /*
-    read_to_string()返回一个Result<String, io::Error>类型
-    如果Result是Err，expect()会导致程序崩溃，并显示expect()的参数
-    如果Result是Ok，expect()会获取Ok中的值并返回
-    */
-    println!("With text:\n{}", contents);
-}
-
-impl Config {
-    /*
-    使用Result来处理错误
-    &‘static str是字符串字面值的类型，它的生命周期是静态的
-    */
-    fn new(args: &[String]) -> Result<Config,&'static str> {
-        if(args.len()<3){
-            return Err("not enough arguments");
-        }
-        let query = &args[1];
-        let filename = &args[2];
+    if let Err(e) = minigrep::run(config) {
         /*
-        不能夺取query和filename的所有权，因为parse_config()需要返回Config实例
-        to_string()会从&str创建一个String
+        if let 功能类似于match，但是只匹配一个模式
+        此处这么使用因为run如果成功返回的是一个空元组，如果失败返回的是一个Box<dyn Error>
         */
-        Ok(Config { query: query.to_string(), filename: filename.to_string() })
+        println!("Application error: {}", e);
+        process::exit(1);
     }
 }
 
-struct Config {
-    query: String,
-    filename: String,
-}
+
+
