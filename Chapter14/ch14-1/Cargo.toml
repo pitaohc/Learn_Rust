@@ -1,0 +1,19 @@
+[package]
+name = "ch14-1"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+
+[profile.dev]
+opt-level = 0 # opt-level 代表 Rust 编译器的优化级别，
+# 0 代表不优化，1 代表优化速度，2 代表优化速度和大小，3 代表优化速度和大小并且花费更长的时间编译
+
+[profile.release]
+opt-level = 3
+
+[profile.my] # 自定义配置文件
+inherits = "dev" # 继承 dev 配置
+opt-level = 3
