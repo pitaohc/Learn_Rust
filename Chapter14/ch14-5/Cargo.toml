@@ -1,0 +1,6 @@
+[workspace]
+#设置工作空间
+members = [
+    "adder",
+    "add-one"
+]
